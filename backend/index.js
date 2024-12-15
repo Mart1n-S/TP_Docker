@@ -8,18 +8,18 @@ const port = 3000;
 // Utiliser CORS pour autoriser les requêtes depuis le front-end
 app.use(
   cors({
-    origin: "http://localhost:5173", // Permettre les requêtes depuis le front-end
-    methods: ["GET", "POST"], // Autoriser les méthodes GET et POST
-    allowedHeaders: ["Content-Type"], // Autoriser les headers nécessaires
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
   })
 );
 
 // Configurer la connexion à la base de données
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "test_db",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // Vérifier la connexion à la base de données
