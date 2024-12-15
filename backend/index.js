@@ -5,10 +5,12 @@ const cors = require("cors"); // Importer CORS
 const app = express();
 const port = 3000;
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS;
+
 // Utiliser CORS pour autoriser les requêtes depuis le front-end
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins.split(","),
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
   })
@@ -29,6 +31,10 @@ db.connect((err) => {
     return;
   }
   console.log("Connexion à la base de données réussie");
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
 });
 
 // Route pour recevoir les requêtes du front

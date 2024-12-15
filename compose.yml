@@ -9,8 +9,13 @@ services:
       - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "3306:3306"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
-      - backend
+      - private
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -21,9 +26,10 @@ services:
     ports:
       - "8080:80"
     networks:
-      - backend
+      - private
     depends_on:
       - db
+
   backend:
     build: ./backend
     environment:
@@ -31,23 +37,37 @@ services:
       DB_USER: root
       DB_PASSWORD: rootpassword
       DB_NAME: test_db
+      ALLOWED_ORIGINS: http://localhost:5173
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
-      - backend
+      - private
+      - public
     ports:
       - "3000:3000"
     container_name: backend
+
   frontend:
     build: ./frontend
     networks:
-      - frontend
+      - public
     ports:
       - "5173:5000"
     container_name: frontend
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000" ]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
 networks:
-  backend:
+  private:
     driver: bridge
-  frontend:
+  public:
     driver: bridge

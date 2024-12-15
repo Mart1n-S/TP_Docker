@@ -30,7 +30,7 @@
   - [ ] Lancé avec un utilisateur non-root (explications incluses)
 
 - [ ] **Conteneur back :**
-  - [ ] Healthcheck implémenté
+  - [x] Healthcheck implémenté
   - [ ] Lancé avec un utilisateur non-root (explications incluses)
 
 ---

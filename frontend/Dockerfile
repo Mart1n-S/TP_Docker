@@ -1,6 +1,9 @@
 # Utilise une image officielle Node.js
 FROM node:18-alpine
 
+# Installe curl
+RUN apk add --no-cache curl
+
 # Crée un utilisateur non root
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
