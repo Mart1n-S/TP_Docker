@@ -1,8 +1,8 @@
 # Utilise une image officielle Node.js
 FROM node:18-alpine
 
-# Installe curl
-RUN apk add --no-cache curl
+# Installe curl et bash
+RUN apk add --no-cache curl bash
 
 # Crée un utilisateur non root
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
@@ -31,5 +31,5 @@ USER appuser
 # Expose le port
 EXPOSE 5000
 
-# Commande de démarrage
-CMD ["npm", "run", "dev"]
+# Exécute le script bash pour générer settings.json
+CMD bash ./generate-settings.sh && npm run dev
