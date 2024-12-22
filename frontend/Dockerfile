@@ -4,32 +4,25 @@ FROM node:18-alpine
 # Installe curl et bash
 RUN apk add --no-cache curl bash
 
-# Crée un utilisateur non root
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
 # Définit le dossier de travail
 WORKDIR /app
 
-# Copie les fichiers package.json et package-lock.json (si présents)
+# Copie les fichiers nécessaires
 COPY package*.json ./
 
-# Installe les dépendances
+# Installe toutes les dépendances (y compris devDependencies)
 RUN npm install
 
-# Copie tous les fichiers du projet
+# Copie tous les fichiers de l'application
 COPY . .
 
-# Change le propriétaire des fichiers copiés pour l'utilisateur 'appuser'
-RUN chown -R appuser:appgroup /app
-
-# Donne les bonnes permissions pour les fichiers dans /app
-RUN chmod -R 755 /app
-
-# Change l'utilisateur pour exécuter le conteneur sous 'appuser'
+# Définit l'utilisateur (utile pour éviter d'exécuter en root)
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /app
 USER appuser
 
-# Expose le port
-EXPOSE 5000
+# Le port ici sert plus à documenter qu'à exposer le port puisqu'on veut rendre le changement de port plus facile via le compose 
+# où des variables d'environnement on ne met pas de port ici
+# EXPOSE 5173
 
 # Exécute le script bash pour générer settings.json
-CMD bash ./generate-settings.sh && npm run dev
+CMD ["sh", "-c", "bash ./generate-settings.sh && npm run dev"]

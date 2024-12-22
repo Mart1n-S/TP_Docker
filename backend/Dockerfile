@@ -4,9 +4,6 @@ FROM node:18-alpine
 # Installe curl
 RUN apk add --no-cache curl
 
-# Crée un utilisateur non root
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
 # Définit le dossier de travail
 WORKDIR /app
 
@@ -17,11 +14,13 @@ COPY index.js ./
 # Installe les dépendances
 RUN npm install
 
-# Change l'utilisateur
+# Définit un utilisateur non-root
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /app
 USER appuser
 
-# Expose le port
-EXPOSE 3000
+# Le port ici sert plus à documenter qu'à exposer le port puisqu'on veut rendre le changement de port plus facile via le compose 
+# où des variables d'environnement on ne met pas de port ici
+# EXPOSE 3000
 
-# Commande de démarrage
+# Lancer l'application
 CMD ["node", "index.js"]

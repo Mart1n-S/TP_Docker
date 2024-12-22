@@ -7,6 +7,6 @@ export default defineConfig({
   server: {
     publicDir: "public",
     host: true,
-    port: 5000,
+    port: parseInt(process.env.VITE_PORT) || 5173,
   },
 });
