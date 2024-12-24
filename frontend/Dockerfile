@@ -17,8 +17,8 @@ RUN npm install
 COPY . .
 
 # Définit l'utilisateur (utile pour éviter d'exécuter en root)
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup && chown -R appuser:appgroup /app
-USER appuser
+RUN addgroup -S appgroup && adduser -S totoUser -G appgroup && chown -R totoUser:appgroup /app
+USER totoUser
 
 # Le port ici sert plus à documenter qu'à exposer le port puisqu'on veut rendre le changement de port plus facile via le compose 
 # où des variables d'environnement on ne met pas de port ici

@@ -160,6 +160,8 @@ Une fois le déploiement terminé, vous pouvez accéder aux différents services
 
 > **Portainer (interface de gestion de Docker)** : [http://localhost:9000](http://localhost:9000)
 
+> **Uptime Kuma (outil de surveillance des services via des sondes)** : [http://localhost:3001](http://localhost:3001) 
+
 
 # 🔧 Utilisation de Portainer pour gérer votre cluster Docker
 
