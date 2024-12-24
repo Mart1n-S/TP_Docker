@@ -1,7 +1,6 @@
 services:
   portainer:
     image: portainer/portainer-ce:latest
-    container_name: portainer
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -17,9 +16,25 @@ services:
         condition: on-failure
     networks:
       - public
+  uptimkuma:
+    image: louislam/uptime-kuma:latest
+    environment:
+      - TZ=Europe/Paris
+    volumes:
+      - uptime_kuma_data:/app/data
+    ports:
+      - "${MACHINE_KUMA_PORT:-3001}:${KUMA_PORT:-3001}"
+    networks:
+      - public
+      - private
+    depends_on:
+      - backend
+      - frontend
+      - db
+    restart: always
+
   db:
     image: mysql:8
-    container_name: mysql-db
     environment:
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
       MYSQL_DATABASE_FILE: /run/secrets/mysql_database
@@ -42,7 +57,6 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
@@ -61,13 +75,12 @@ services:
 
   backend:
     image: backend-node
-    container_name: backend
     environment:
       DB_HOST: db
       DB_USER_FILE: /run/secrets/mysql_user
       DB_PASSWORD_FILE: /run/secrets/mysql_user_password
       DB_NAME_FILE: /run/secrets/mysql_database
-      ALLOWED_ORIGINS: ${HOST:-http://localhost}:${FRONTEND_PORT:-5173}
+      ALLOWED_ORIGINS: ${HOST:-http://localhost}:${MACHINE_FRONTEND_PORT:-5173}
       BACKEND_PORT: ${BACKEND_PORT:-3000}
     secrets:
       - mysql_user
@@ -88,7 +101,6 @@ services:
 
   frontend:
     image: frontend-vue
-    container_name: frontend
     environment:
       VITE_API_URL: ${HOST:-http://localhost}:${BACKEND_PORT:-3000}
       VITE_PORT: ${FRONTEND_PORT:-5173}
@@ -104,6 +116,8 @@ services:
 
 volumes:
   portainer_data:
+    driver: local
+  uptime_kuma_data:
     driver: local
 
 secrets:
