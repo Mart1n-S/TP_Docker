@@ -80,11 +80,17 @@ export default {
         lastName: "",
       },
       users: [],
+      retryInterval: 5,
+      maxRetries: 30,
     };
   },
   async created() {
     await this.loadSettings();
-    this.fetchUsers();
+    if (this.VITE_API_URL) {
+      await this.retryFetchBackend(); // Vérifie la disponibilité du backend
+    } else {
+      this.showMessage("error", "URL de l'API non définie.");
+    }
   },
   methods: {
     async loadSettings() {
@@ -129,7 +135,7 @@ export default {
         confetti({
           particleCount: 300,
           spread: 90,
-          colors: ['#ff0000', '#00ff00', '#0000ff', '#ff00ff', '#ffff00'],
+          colors: ["#ff0000", "#00ff00", "#0000ff", "#ff00ff", "#ffff00"],
           ticks: 100,
         });
         this.formData.firstName = "";
@@ -153,6 +159,69 @@ export default {
         console.error("Erreur lors de la récupération des utilisateurs:", error);
       }
     },
+    async retryFetchBackend() {
+      let attempts = 0;
+      let remainingSeconds = this.retryInterval;
+      let interval = null;
+
+      const checkBackend = async () => {
+        if (!this.VITE_API_URL) {
+          console.error("URL de l'API non définie. Tentative échouée.");
+          this.showMessage("error", "URL de l'API non définie.");
+          return false;
+        }
+
+        try {
+          const response = await axios.get(`${this.VITE_API_URL}/health`);
+          if (response.status === 200 && response.data === "OK") {
+            this.errorMessage = ""; // Supprime le message d'erreur
+            this.showMessage("success", "Backend disponible !");
+            await this.fetchUsers();
+            return true;
+          }
+        } catch (error) {
+          attempts++;
+          if (attempts >= this.maxRetries) {
+            this.errorMessage = "Le backend est toujours indisponible après plusieurs tentatives.";
+            return false;
+          }
+
+          // Mettre à jour dynamiquement les secondes restantes
+          remainingSeconds = this.retryInterval;
+          this.errorMessage = `Backend non disponible. Nouvelle tentative dans ${remainingSeconds} secondes. (${attempts}/${this.maxRetries})`;
+
+          // Nettoyer tout interval existant avant d'en créer un nouveau
+          if (interval) clearInterval(interval);
+
+          interval = setInterval(() => {
+            remainingSeconds--;
+            if (remainingSeconds <= 0) {
+              clearInterval(interval);
+            } else {
+              this.errorMessage = `Backend non disponible. Nouvelle tentative dans ${remainingSeconds} secondes. (${attempts}/${this.maxRetries})`;
+            }
+          }, 1000);
+
+          // Attendre avant la prochaine tentative
+          await new Promise((resolve) => setTimeout(resolve, this.retryInterval * 1000));
+
+          // Relancer le check
+          return checkBackend();
+        }
+      };
+
+      const success = await checkBackend();
+
+      // Nettoyer l'interval à la fin
+      if (interval) clearInterval(interval);
+
+      // Si le backend devient disponible, supprimer tous les messages d'erreur
+      if (success) {
+        this.errorMessage = "";
+      }
+    }
+
+
   },
 };
 </script>

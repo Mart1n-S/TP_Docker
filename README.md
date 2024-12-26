@@ -152,6 +152,8 @@ docker service scale projet-docker_phpmyadmin=1
 # URL des services
 Une fois le déploiement terminé, vous pouvez accéder aux différents services via les URL suivantes (en supposant que vous avez utilisé les valeurs par défaut pour les ports, sinon remplacez les ports par ceux de votre configuration) :
 
+> **INFO :** Le backend peut nécessiter un certain temps pour être prêt. Le frontend affichera un message lorsque tout sera opérationnel et vérifiera régulièrement la disponibilité du backend.
+
 > **Frontend (Vue.js ou autre framework)** : [http://localhost:5173](http://localhost:5173)
 
 > **Backend (API ou serveur Node.js, etc.)** : [http://localhost:3000](http://localhost:3000)
@@ -180,7 +182,7 @@ Une des fonctionnalités utiles de Portainer est la possibilité de mettre à l�
 2. **Accéder à votre Stack Docker** : Dans l'interface de Portainer, choisissez votre environnement et allez dans la section **"Stacks"** pour voir la liste des stacks déployées.
 3. **Sélectionner votre stack** : Cliquez sur la stack que vous souhaitez gérer.
 4. **Modifier le nombre de réplicas** : Dans la section des services de votre stack, vous pouvez voir les services déployés. Pour augmenter le nombre de réplicas d'un service (par exemple, pour phpMyAdmin), il suffit de modifier le champ **"Replicas"** et d'indiquer le nombre de réplicas souhaité.
-5. **Appliquer les changements** : Une fois les réplicas modifiés, cliquez sur **"Deploy the stack"** pour appliquer les changements. Docker Swarm mettra automatiquement à l’échelle votre service en fonction des nouvelles valeurs spécifiées.
+5. **Appliquer les changements** : Une fois les réplicas modifiés, cliquez sur **"Apply changes"** pour appliquer les changements. Docker Swarm mettra automatiquement à l’échelle votre service en fonction des nouvelles valeurs spécifiées.
 
 # Configuration des sondes avec Uptime Kuma
 
